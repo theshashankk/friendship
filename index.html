@@ -36,7 +36,6 @@ body{
   min-height:100vh;
   overflow-x:hidden;
   background:var(--cream);
-  perspective: 1200px;
 }
 h1,h2,h3,.display{font-family:'Baloo 2',sans-serif;}
 .script{font-family:'Caveat',cursive;}
@@ -59,8 +58,6 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif;}
   justify-content:flex-start;
   padding:32px 20px 80px;
   overflow:hidden;
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
 }
 .page.active{display:flex;}
 
@@ -202,12 +199,53 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif;}
 .notif .body-txt{font-family:'Baloo 2',sans-serif; font-weight:700; font-size:1.2rem; margin-top:4px; color:var(--ink);}
 .hint{margin-top:22px; font-family:'Caveat',cursive; font-size:1.3rem;}
 
-/* ---------- PAGE: ENVELOPE ---------- */
+/* ---------- PAGE: ENVELOPE (With 3D Card Flip to Back Side) ---------- */
 #page-envelope{background:var(--cream); justify-content:center;}
-.envelope-wrap{max-width:340px; width:100%; text-align:center; position:relative; z-index:1;}
+.envelope-container{
+  perspective: 1000px;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.envelope-card-inner{
+  position: relative;
+  width: 100%;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+
+.envelope-container.flipped .envelope-card-inner{
+  transform: rotateY(180deg);
+}
+
+.envelope-front-side, .envelope-back-side{
+  width: 100%;
+  backface-visibility: hidden;
+  border-radius: 20px;
+}
+
+.envelope-front-side{
+  text-align: center;
+}
+
+.envelope-back-side{
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotateY(180deg);
+  background: var(--cream-card);
+  border: 3px solid var(--ink);
+  box-shadow: var(--shadow);
+  padding: 24px 18px 30px;
+  text-align: center;
+}
+
 .envelope{
   position:relative; width:100%; aspect-ratio:1/0.72;
-  background:#fffdfa; border:3px solid var(--ink); border-radius:12px;
+  background:#fffdfa; border:3px solid var(--ink); border-radius:14px;
   box-shadow:var(--shadow); overflow:hidden; cursor:pointer;
   animation: envPulse 1.6s ease-in-out infinite;
   transition: transform 0.3s ease;
@@ -240,7 +278,7 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif;}
 }
 .envelope.torn .envelope-msg{opacity:1;}
 .tear-hint{margin-top:18px; font-family:'Caveat',cursive; font-size:1.3rem;}
-.continue-wrap{margin-top:26px; display:none;}
+.continue-wrap{margin-top:22px; display:none;}
 .envelope.torn ~ .continue-wrap{display:block;}
 
 /* ---------- PAGE: MEMORY ---------- */
@@ -365,7 +403,8 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif;}
 
 <!-- Background Audio -->
 <audio id="bgMusic" loop preload="none">
-  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+  <source src="music.mp3" type="audio/mpeg">
+  <source src="https://cdn.cutiepage.in/template-seeds/girlfriends-day/music.mp3" type="audio/mpeg">
 </audio>
 <div id="musicToggle" onclick="toggleMusic()">🔈</div>
 
@@ -424,26 +463,44 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif;}
   </div>
 </section>
 
-<!-- ================= PAGE 3: ENVELOPE ================= -->
+<!-- ================= PAGE 3: ENVELOPE (With 3D Envelope Card Flip) ================= -->
 <section id="page-envelope" class="page">
   <div class="dots"></div>
   <span class="sticker" style="top:8%; left:8%; font-size:2.6rem; transform:rotate(-8deg);">🧸</span>
   <span class="sticker" style="top:10%; right:8%; font-size:2.5rem; transform:rotate(12deg);">🩷</span>
-  <div class="envelope-wrap">
-    <div class="envelope" id="envelope" onclick="tearOpen()">
-      <div class="flap" id="envFlap"></div>
-      <div class="seal">♥</div>
-      <div class="envelope-msg" id="envMsg"></div>
-    </div>
-    <div class="tear-hint" id="tearHint">👆 tap to open it, Shruti</div>
-    <div class="continue-wrap">
-      <!-- 3D FLIP ANIMATION APPLIED ONLY FOR THIS PARTICULAR PAGE TRANSITION -->
-      <button class="btn" onclick="flipToMemoryPage()">Flip To Other Side 📖</button>
+  
+  <div class="envelope-container" id="envelopeContainer">
+    <div class="envelope-card-inner">
+
+      <!-- FRONT OF CARD: The Envelope -->
+      <div class="envelope-front-side">
+        <div class="envelope" id="envelope" onclick="tearOpen()">
+          <div class="flap" id="envFlap"></div>
+          <div class="seal">♥</div>
+          <div class="envelope-msg" id="envMsg"></div>
+        </div>
+        <div class="tear-hint" id="tearHint">👆 tap to open it, Shruti</div>
+        <div class="continue-wrap">
+          <button class="btn" onclick="flipCardToBack()">Flip To Other Side 📖</button>
+        </div>
+      </div>
+
+      <!-- BACK OF CARD: The Memory Polaroid Reveal -->
+      <div class="envelope-back-side">
+        <h3 style="font-family:'Baloo 2'; font-size:1.3rem; margin-bottom:10px;">a little memory for us 💛</h3>
+        <div class="polaroid" style="box-shadow:none; padding:10px 10px 30px;">
+          <div class="tape"></div>
+          <img src="https://cdn.cutiepage.in/template-seeds/girlfriends-day/gallery3.jpeg" alt="a memory">
+          <div class="cap">this one's a keeper ✨</div>
+        </div>
+        <button class="btn small" style="margin-top:16px;" onclick="goTo('page-quotes')">Continue 💐</button>
+      </div>
+
     </div>
   </div>
 </section>
 
-<!-- ================= PAGE 4: MEMORY ================= -->
+<!-- ================= PAGE 4: MEMORY (Fallback page) ================= -->
 <section id="page-memory" class="page">
   <div class="dots"></div>
   <span class="sticker" style="top:6%; left:6%; font-size:2.7rem; transform:rotate(10deg);">💛</span>
@@ -563,7 +620,6 @@ const giftData = {
    NAV / PROGRESS
    ===================================================================== */
 const PAGE_ORDER = ["page-intro","page-landing","page-envelope","page-memory","page-quotes","page-agreement","page-finale","page-final"];
-let isAnimatingFlip = false;
 
 function updateDots(id){
   const idx = PAGE_ORDER.indexOf(id);
@@ -577,9 +633,6 @@ function updateDots(id){
 function goTo(id){
   document.querySelectorAll('.page').forEach(p=>{
     p.classList.remove('active');
-    p.style.transition = '';
-    p.style.transform = '';
-    p.style.opacity = '';
   });
   const target = document.getElementById(id);
   target.classList.add('active');
@@ -590,49 +643,13 @@ function goTo(id){
   if(id==='page-final') renderFinal();
 }
 
-/* 3D Smooth Page Flip Transition ONLY for Envelope -> Memory */
-function flipToMemoryPage() {
-  if (isAnimatingFlip) return;
-  isAnimatingFlip = true;
-
-  const fromPage = document.getElementById('page-envelope');
-  const toPage = document.getElementById('page-memory');
-
-  // 1. Rotate envelope page out (-90deg on Y axis, like turning a book page)
-  fromPage.style.transition = 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.45s ease';
-  fromPage.style.transformOrigin = 'left center';
-  fromPage.style.transform = 'rotateY(-90deg) scale(0.95)';
-  fromPage.style.opacity = '0.4';
-
-  setTimeout(() => {
-    fromPage.classList.remove('active');
-    fromPage.style.transition = '';
-    fromPage.style.transform = '';
-    fromPage.style.opacity = '';
-
-    // 2. Prepare memory page rotated in from +90deg
-    toPage.style.transformOrigin = 'right center';
-    toPage.style.transform = 'rotateY(90deg) scale(0.95)';
-    toPage.style.opacity = '0.4';
-    toPage.classList.add('active');
-
-    window.scrollTo(0,0);
-    updateDots('page-memory');
-
-    // 3. Smoothly unflip memory page into view (0deg)
-    requestAnimationFrame(() => {
-      toPage.style.transition = 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.45s ease';
-      toPage.style.transform = 'rotateY(0deg) scale(1)';
-      toPage.style.opacity = '1';
-
-      setTimeout(() => {
-        toPage.style.transition = '';
-        toPage.style.transform = '';
-        toPage.style.opacity = '';
-        isAnimatingFlip = false;
-      }, 450);
-    });
-  }, 450);
+/* 3D Envelope Card Flip Animation - Flips ONLY the card element */
+function flipCardToBack(){
+  const container = document.getElementById('envelopeContainer');
+  if(container){
+    container.classList.add('flipped');
+    confettiBurst();
+  }
 }
 
 function startExperience(){
